@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassroomEcho · Student Registration</title>
+  <!-- Fonts & base style -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ----- SKY BLUE / LIGHT THEME ----- */
+    :root {
+      --ink:       #0b2b3f;      /* deep navy for text, not background */
+      --sky-light: #e1f0fa;
+      --sky-soft:  #d4e9fc;
+      --sky-blue:  #0ea5e9;       /* primary accent */
+      --sky-deep:  #0369a1;
+      --sky-glow:  rgba(14,165,233,0.18);
+      --blue-muted:#5b7f9c;
+      --cream:     #fbfdff;
+      --card:      #ffffff;
+      --border:    rgba(11,43,63,0.08);
+      --green:     #0d9488;
+      --green-lt:  rgba(13,148,136,0.08);
+      --error:     #dc2626;
+      --error-lt:  rgba(220,38,38,0.06);
+      --success:   #059669;
+      --white:     #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* subtle noise texture (keep light) */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+    }
+
+    /* ----- NAV (light, airy) ----- */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ink);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid rgba(14,165,233,0.25);
+      height: 64px; padding: 0 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 12px var(--cream);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 40px; height: 40px; background: var(--sky-light);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: white;
+    }
+    .nav-logo-text {
+      font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800;
+      color: var(--sky-light); letter-spacing: -0.4px;
+    }
+    .nav-logo-text span { color: var(--sky-blue); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link {
+      color: var(--white); font-size: 0.85rem; font-weight: 500;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--sky-deep); }
+    .nav-btn {
+      padding: 7px 20px; border: 1.5px solid rgba(14,165,233,0.3);
+      border-radius: 30px; background: transparent;
+      color: var(--white); font-size: 0.8rem; font-weight: 600;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      border-color: var(--sky-blue);
+      background: var(--sky-light);
+      color: var(--sky-deep);
+    }
+
+    /* ----- SPLIT LAYOUT (like teacher, but light) ----- */
+    .page-layout {
+      flex: 1; display: grid;
+      grid-template-columns: 380px 1fr;
+      min-height: calc(100vh - 64px);
+      position: relative; z-index: 1;
+    }
+
+    /* ----- LEFT PANEL (light, sky tones) ----- */
+    .left-panel {
+      background: var(--sky-light);
+      padding: 2.8rem 2.2rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: sticky; top: 64px; height: calc(100vh - 64px);
+      overflow-y: auto;
+      border-right: 1px solid rgba(14,165,233,0.12);
+    }
+    .lp-eyebrow {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--sky-deep);
+      margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px;
+    }
+    .lp-eyebrow::before {
+      content: ''; width: 28px; height: 2px;
+      background: var(--sky-blue);
+    }
+    .lp-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; font-weight: 900; color: var(--ink);
+      line-height: 1.15; margin-bottom: 0.8rem;
+    }
+    .lp-title span { color: var(--sky-blue); font-style: italic; }
+    .lp-desc {
+      font-size: 0.9rem; color: var(--blue-muted);
+      line-height: 1.7; margin-bottom: 2rem;
+    }
+
+    /* perks / benefits */
+    .student-perks {
+      display: flex; flex-direction: column; gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .perk-item {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .perk-icon {
+      font-size: 1.4rem; line-height: 1;
+      min-width: 32px; text-align: center;
+    }
+    .perk-text {
+      font-size: 0.85rem; color: var(--ink);
+      opacity: 0.8; font-weight: 500;
+    }
+    .perk-text strong {
+      display: block; font-size: 0.9rem; color: var(--ink);
+      opacity: 1; margin-bottom: 2px;
+    }
+
+    /* decorative rings (light) */
+    .lp-ring {
+      width: 200px; height: 200px; border-radius: 50%;
+      border: 1.5px solid rgba(14,165,233,0.12);
+      position: absolute; bottom: -30px; right: -40px;
+      pointer-events: none;
+    }
+    .lp-ring-2 {
+      width: 140px; height: 140px; border-color: rgba(14,165,233,0.08);
+      bottom: -10px; right: -10px;
+    }
+
+    /* ----- RIGHT PANEL (clean form) ----- */
+    .right-panel {
+      padding: 3rem 3rem;
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+      background: var(--cream);
+    }
+
+    .form-breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; color: var(--blue-muted);
+      margin-bottom: 2rem;
+    }
+    .form-breadcrumb span { color: var(--ink); font-weight: 600; }
+    .bc-sep { color: var(--border); }
+
+    .step-header { margin-bottom: 2rem; }
+    .step-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--sky-blue);
+      margin-bottom: 0.3rem;
+    }
+    .step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 900; line-height: 1.1;
+      margin-bottom: 0.3rem; color: var(--ink);
+    }
+    .step-subtitle {
+      font-size: 0.9rem; color: var(--blue-muted);
+    }
+
+    /* form card */
+    .form-card {
+      background: var(--card);
+      border: 1.5px solid rgba(14,165,233,0.15);
+      border-radius: 24px; padding: 2.2rem 2rem;
+      box-shadow: 0 10px 30px rgba(0,55,80,0.04);
+      margin-bottom: 1.8rem;
+      position: relative; overflow: hidden;
+    }
+    .form-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--sky-blue), #38bdf8);
+    }
+    .card-section-title {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--blue-muted);
+      margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .card-section-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(14,165,233,0.15);
+    }
+
+    /* fields */
+    .field-row {
+      display: grid; grid-template-columns: 1fr; gap: 1.2rem;
+      margin-bottom: 0.8rem;
+    }
+    .field {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .field label {
+      font-size: 0.85rem; font-weight: 600; color: var(--ink);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .field label .req { color: var(--error); font-size: 1em; }
+    .field input, .field select {
+      padding: 0.8rem 1rem;
+      border: 1.8px solid var(--border);
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      background: var(--cream); color: var(--ink);
+      outline: none; transition: all 0.2s;
+      width: 100%;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--sky-blue);
+      box-shadow: 0 0 0 4px var(--sky-glow);
+      background: #fff;
+    }
+    .field input.error, .field select.error {
+      border-color: var(--error);
+      background: var(--error-lt);
+    }
+    .field input.valid { border-color: var(--green); background: var(--green-lt); }
+    .field-error {
+      font-size: 0.75rem; color: var(--error);
+      margin-top: 3px; display: none;
+    }
+    .field-error.show { display: block; }
+
+    .input-wrap { position: relative; }
+    .input-wrap input { padding-left: 2.6rem; }
+    .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); font-size: 16px;
+      opacity: 0.6; pointer-events: none;
+    }
+
+    /* terms checkbox */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--sky-light); border-radius: 16px;
+      padding: 1rem 1.2rem; border: 1.5px solid rgba(14,165,233,0.2);
+      margin: 1.5rem 0 0.5rem; cursor: pointer;
+    }
+    .terms-row input[type=checkbox] {
+      width: 18px; height: 18px; accent-color: var(--sky-blue);
+      flex-shrink: 0; margin-top: 2px; cursor: pointer;
+    }
+    .terms-text {
+      font-size: 0.82rem; color: var(--blue-muted);
+      line-height: 1.5;
+    }
+    .terms-text a { color: var(--sky-deep); text-decoration: none; font-weight: 600; }
+    .terms-text a:hover { text-decoration: underline; }
+
+    /* buttons */
+    .form-nav {
+      display: flex; gap: 1rem; margin-top: 0.5rem;
+    }
+    .btn-submit {
+      flex: 1; padding: 0.95rem 2rem;
+      background: var(--sky-blue); border: none;
+      border-radius: 40px; font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 700; color: white;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 18px rgba(14,165,233,0.25);
+    }
+    .btn-submit:hover {
+      background: var(--sky-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(14,165,233,0.3);
+    }
+
+    /* success screen */
+    .success-screen {
+      display: none; text-align: center; padding: 2rem 1rem;
+      animation: fadePanel 0.4s ease;
+    }
+    .success-screen.active { display: block; }
+    .success-anim {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--green-lt); border: 3px solid var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; margin: 0 auto 1.5rem;
+      animation: pop 0.5s ease;
+    }
+    @keyframes pop { from{opacity:0;transform:scale(0.5);} to{opacity:1;transform:scale(1);} }
+    .success-title {
+      font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900;
+      margin-bottom: 0.5rem; color: var(--ink);
+    }
+    .success-sub {
+      font-size: 0.95rem; color: var(--blue-muted);
+      margin-bottom: 2rem;
+    }
+    .success-card {
+      background: var(--sky-light); border-radius: 20px;
+      padding: 1.5rem; text-align: left; margin-bottom: 2rem;
+      border: 1px solid rgba(14,165,233,0.2);
+    }
+    .sc-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--blue-muted);
+      margin-bottom: 0.2rem;
+    }
+    .sc-value {
+      font-weight: 600; font-size: 0.95rem; color: var(--ink);
+    }
+    .sc-id {
+      font-family: 'DM Mono', monospace; font-size: 1.1rem;
+      color: var(--sky-deep); letter-spacing: 2px;
+    }
+    .success-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn-go {
+      padding: 0.85rem 2rem; border-radius: 40px;
+      font-weight: 700; text-decoration: none; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-go.primary {
+      background: var(--sky-blue); color: white;
+      box-shadow: 0 6px 14px var(--sky-glow);
+    }
+    .btn-go.primary:hover { background: var(--sky-deep); }
+    .btn-go.outline {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--ink);
+    }
+    .btn-go.outline:hover { border-color: var(--sky-blue); color: var(--sky-blue); }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--ink); color: white;
+      padding: 0.8rem 1.5rem; border-radius: 40px;
+      font-size: 0.9rem; font-weight: 500;
+      opacity: 0; pointer-events: none; z-index: 9999;
+      transition: 0.25s; transform: translateY(8px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* responsive */
+    @media (max-width: 800px) {
+      .page-layout { grid-template-columns: 1fr; }
+      .left-panel { position: static; height: auto; padding: 2rem 1.5rem; }
+      .right-panel { padding: 2rem 1.5rem; }
+      nav { padding: 0 1.2rem; }
+    }
+    @media (max-width: 480px) {
+      .form-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV (light, blue accent) -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🎧</div>
+    <div class="nav-logo-text">Classroom<span>Echo</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="#" class="nav-link">Teacher Portal</a>
+    <a href="#" class="nav-btn">Help</a>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MAIN LAYOUT -->
+<div class="page-layout">
+
+  <!-- LEFT PANEL – sky / light background -->
+  <aside class="left-panel">
+    <div style="position:relative;">
+      <div class="lp-eyebrow">Student access</div>
+      <h2 class="lp-title">Listen, learn, <span>excel.</span></h2>
+      <p class="lp-desc">Join your class in seconds. Get direct audio instructions from your teachers — exactly as they said it.</p>
+
+      <div class="student-perks">
+        <div class="perk-item">
+          <span class="perk-icon">🎙️</span>
+          <div class="perk-text"><strong>Hear every detail</strong>No more missed assignments.</div>
+        </div>
+        <div class="perk-item">
+          <span class="perk-icon">📚</span>
+          <div class="perk-text"><strong>All subjects, one place</strong>Your class recordings organized.</div>
+        </div>
+        <div class="perk-item">
+          <span class="perk-icon">📱</span>
+          <div class="perk-text"><strong>Works on any device</strong>Phone, tablet, or laptop.</div>
+        </div>
+      </div>
+
+      <!-- simple quote -->
+      <div style="margin-top: 2.5rem; padding: 1rem 0; border-top: 1px dashed rgba(14,165,233,0.3);">
+        <p style="font-style: italic; color: var(--ink); font-size: 0.9rem;">“I never miss what my teacher said.”<br>— Aisha Yusuf Doma (AKA Swabby)</p>
+      </div>
+    </div>
+    <div class="lp-ring"></div>
+    <div class="lp-ring lp-ring-2"></div>
+  </aside>
+
+  <!-- RIGHT PANEL – registration form -->
+  <div class="right-panel">
+    <div class="form-breadcrumb">
+      <a href="#" style="color:var(--blue-muted);text-decoration:none">Home</a>
+      <span class="bc-sep">›</span>
+      <span>Student Registration</span>
+    </div>
+
+    <!-- main form area (single step) -->
+    <div id="registrationFormArea">
+      <div class="step-header">
+        <div class="step-label">Quick sign-up</div>
+        <div class="step-title">Student registration</div>
+        <div class="step-subtitle">Only three fields — you'll be ready in under a minute.</div>
+      </div>
+
+      <div class="form-card">
+        <div class="card-section-title">Student details</div>
+
+        <!-- Full Name -->
+        <div class="field-row">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="fullName" placeholder="e.g. Chidinma Okonkwo" oninput="validateField(this,'name')">
+            </div>
+            <span class="field-error" id="err-fullName">Please enter your full name (at least 3 characters).</span>
+          </div>
+        </div>
+
+        <!-- Student ID -->
+        <div class="field-row">
+          <div class="field">
+            <label>Student ID / Registration Number <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">🆔</span>
+              <input type="text" id="studentId" placeholder="e.g. SS2/2024/089" oninput="validateField(this,'id')">
+            </div>
+            <span class="field-error" id="err-studentId">Please enter a valid ID (letters, numbers, / or -).</span>
+            <span class="field-hint" style="font-size:0.72rem;color:var(--blue-muted);margin-top:4px;">As provided by your school</span>
+          </div>
+        </div>
+
+        <!-- Class selection (dropdown) -->
+        <div class="field-row">
+          <div class="field">
+            <label>Class <span class="req">*</span></label>
+            <select id="studentClass" onchange="validateField(this,'select')">
+              <option value="">— Select your class —</option>
+              <option>JSS 1</option><option>JSS 2</option><option>JSS 3</option>
+              <option>SS 1</option><option>SS 2</option><option>SS 3</option>
+            </select>
+            <span class="field-error" id="err-studentClass">Please select your class.</span>
+          </div>
+        </div>
+
+        <!-- agreement (simple) -->
+        <div class="terms-row" onclick="document.getElementById('agreeTerms').click()">
+          <input type="checkbox" id="agreeTerms" onclick="event.stopPropagation()">
+          <div class="terms-text">
+            I confirm that I am a student and I agree to ClassroomEcho's <a href="#">Terms</a> and <a href="#">Privacy</a>. 
+            I understand my teacher's recordings are for my learning only.
+          </div>
+        </div>
+        <span class="field-error" id="err-terms" style="margin-top:6px;">You must agree to continue.</span>
+
+        <div class="form-nav">
+          <button class="btn-submit" onclick="submitStudentRegistration()">🎧 Complete Registration</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN (hidden initially) -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-anim">✅</div>
+      <div class="success-title">You're all set, <span id="successNameSpan">Chidinma</span>!</div>
+      <p class="success-sub">Your student account is ready. Start listening to your class instructions now.</p>
+      <div class="success-card">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div><div class="sc-label">Full name</div><div class="sc-value" id="scFullName">—</div></div>
+          <div><div class="sc-label">Student ID</div><div class="sc-value" id="scStudentId">—</div></div>
+          <div><div class="sc-label">Class</div><div class="sc-value" id="scClass">—</div></div>
+          <div><div class="sc-label">Access code</div><div class="sc-value" id="scAccessCode">—</div></div>
+        </div>
+        <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid rgba(14,165,233,0.2);">
+          <div class="sc-label">Your ClassroomEcho ID</div>
+          <div class="sc-id" id="scEchoId">STU/2025/042</div>
+        </div>
+      </div>
+      <div class="success-actions">
+        <a href="#" class="btn-go primary">🎧 Go to Student Portal</a>
+        <a href="#" class="btn-go outline">← Back to home</a>
+      </div>
+    </div>
+
+  </div><!-- /right panel -->
+</div><!-- /layout -->
+
+<script>
+  // ----- SIMPLE VALIDATION & INTERACTION (blue theme) -----
+
+  // Show toast
+  function showToast(msg, isSuccess = true) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isSuccess ? '#0b2b3f' : '#b91c1c';
+    t.classList.add('show');
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  // Field validation
+  function validateField(el, type) {
+    const val = el.value.trim();
+    let ok = false;
+    const id = el.id;
+
+    if (type === 'name') {
+      ok = val.length >= 3;
+    } else if (type === 'id') {
+      // student ID: allow alphanumeric, /, -, ., space, at least 2 chars
+      ok = /^[A-Za-z0-9\s\/\-\.]{2,30}$/.test(val);
+    } else if (type === 'select') {
+      ok = val !== '';
+    }
+
+    // update classes
+    el.classList.toggle('valid', ok && val.length > 0);
+    el.classList.toggle('error', val.length > 0 && !ok);
+
+    const errEl = document.getElementById('err-' + id);
+    if (errEl) errEl.classList.toggle('show', val.length > 0 && !ok);
+    
+    return ok;
+  }
+
+  // Quick validation for all fields before submit
+  function validateForm() {
+    let valid = true;
+    const nameField = document.getElementById('fullName');
+    const idField = document.getElementById('studentId');
+    const classField = document.getElementById('studentClass');
+    const terms = document.getElementById('agreeTerms');
+
+    if (!validateField(nameField, 'name')) valid = false;
+    if (!validateField(idField, 'id')) valid = false;
+    if (!validateField(classField, 'select')) valid = false;
+
+    const termsErr = document.getElementById('err-terms');
+    if (!terms.checked) {
+      termsErr.classList.add('show');
+      valid = false;
+    } else {
+      termsErr.classList.remove('show');
+    }
+
+    if (!valid) {
+      showToast('⚠️ Please fill all required fields correctly.', false);
+    }
+    return valid;
+  }
+
+  // Submit registration
+  function submitStudentRegistration() {
+    if (!validateForm()) return;
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const studentId = document.getElementById('studentId').value.trim();
+    const studentClass = document.getElementById('studentClass').value;
+
+    // generate a simple echo ID
+    const classPart = studentClass.replace(/\s/g, '');
+    const randomNum = Math.floor(Math.random() * 9000 + 1000);
+    const echoId = `STU-${classPart}-${new Date().getFullYear()}-${randomNum}`;
+    const accessCode = `${classPart.slice(0,3)}${randomNum}`.toUpperCase();
+
+    // fill success screen
+    document.getElementById('successNameSpan').textContent = fullName.split(' ')[0] || fullName;
+    document.getElementById('scFullName').textContent = fullName;
+    document.getElementById('scStudentId').textContent = studentId;
+    document.getElementById('scClass').textContent = studentClass;
+    document.getElementById('scAccessCode').textContent = accessCode;
+    document.getElementById('scEchoId').textContent = echoId;
+
+    // hide form, show success
+    document.getElementById('registrationFormArea').style.display = 'none';
+    document.getElementById('successScreen').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    showToast('🎉 Registration successful! Welcome to ClassroomEcho.', true);
+  }
+
+  // (optional) initialize error visibility if user interacts later
+  window.onload = function() {
+    // prefill nothing, just ready
+    const termsCheck = document.getElementById('agreeTerms');
+    termsCheck.addEventListener('change', function() {
+      document.getElementById('err-terms').classList.remove('show');
+    });
+
+    // extra: allow clicking terms row
+  };
+
+  // Also add toggle for terms row click (already in html)
+</script>
+
+</body>
+</html>

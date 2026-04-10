@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ClassroomEcho — Sign In · Light & Airy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ----- SKY BLUE / LIGHT THEME (matching studentRegistration) ----- */
+    :root {
+      --ink:       #0b2b3f;      /* deep navy for text */
+      --sky-light: #e1f0fa;
+      --sky-soft:  #d4e9fc;
+      --sky-blue:  #0ea5e9;       /* primary accent (teacher) */
+      --sky-deep:  #0369a1;
+      --teal:      #0d9488;       /* secondary accent (student) */
+      --teal-deep: #0f766e;
+      --teal-glow: rgba(13,148,136,0.18);
+      --blue-muted:#5b7f9c;
+      --cream:     #fbfdff;
+      --card:      #ffffff;
+      --border:    rgba(11,43,63,0.08);
+      --green:     #0d9488;
+      --green-lt:  rgba(13,148,136,0.08);
+      --error:     #dc2626;
+      --error-lt:  rgba(220,38,38,0.06);
+      --white:     #ffffff;
+      --warm-light: #f5f9fe;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* subtle grain */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+    }
+
+    /* ══ NAV (light, airy) ══ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 60px; padding: 0 2.5rem;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(14px);
+      border-bottom: 1.5px solid rgba(14,165,233,0.25);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 32px; height: 32px; background: var(--sky-blue);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: white;
+    }
+    .nav-logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.28rem; font-weight: 800; color: var(--ink);
+      letter-spacing: -0.4px;
+    }
+    .nav-logo-text em { color: var(--sky-blue); font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 1.8rem; }
+    .nav-links a { color: var(--blue-muted); font-size: 0.83rem; font-weight: 500; text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--sky-deep); }
+    .nav-register {
+      padding: 6px 18px; border: 1.5px solid rgba(14,165,233,0.3);
+      border-radius: 30px; background: transparent; color: var(--sky-deep);
+      font-size: 0.8rem; font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-register:hover { border-color: var(--sky-blue); background: var(--sky-light); color: var(--sky-deep); }
+
+    /* ══ FULL-PAGE SPLIT ══ */
+    .page-shell {
+      flex: 1; display: flex; min-height: 100vh;
+      padding-top: 60px;
+    }
+
+    /* ══ LEFT — VISUAL PANEL (light, fresh) ══ */
+    .visual-panel {
+      width: 46%;
+      background: linear-gradient(145deg, #f0f9ff 0%, #ffffff 100%);
+      position: fixed; top: 60px; left: 0; bottom: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid rgba(14,165,233,0.12);
+    }
+
+    /* animated background waveform (sky tones) */
+    .vp-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: flex-end;
+      gap: 3px; padding: 0 1rem 0;
+      pointer-events: none;
+    }
+    .vp-bar {
+      flex: 1; border-radius: 4px 4px 0 0;
+      background: rgba(14,165,233,0.12);
+      min-height: 4px;
+    }
+
+    .vp-glow {
+      position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 65%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      animation: vpGlow 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes vpGlow { 0%,100%{transform:translate(-50%,-50%) scale(1);} 50%{transform:translate(-50%,-50%) scale(1.12);} }
+
+    .vp-ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(14,165,233,0.1);
+      pointer-events: none;
+    }
+
+    .vp-content {
+      position: relative; z-index: 2;
+      padding: 3rem 3rem;
+      display: flex; flex-direction: column;
+      justify-content: space-between; height: 100%;
+    }
+
+    .vp-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 2.5rem; }
+    .vp-brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sky-blue); animation: vpDot 2s infinite; }
+    @keyframes vpDot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.5);opacity:0.5;} }
+    .vp-brand-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue-muted); }
+
+    .vp-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.2vw, 2.8rem);
+      font-weight: 900; color: var(--ink); line-height: 1.12; margin-bottom: 1rem;
+    }
+    .vp-headline em { color: var(--sky-blue); font-style: italic; }
+    .vp-headline .red { color: var(--teal); }
+
+    .vp-desc { font-size: 0.88rem; color: var(--blue-muted); line-height: 1.75; max-width: 340px; margin-bottom: 2.5rem; }
+
+    .vp-stats {
+      display: flex; gap: 1px; border-radius: 16px; overflow: hidden;
+      background: var(--border); margin-bottom: 2.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .vps { padding: 0.9rem 1.2rem; flex: 1; background: var(--card); transition: background 0.2s; }
+    .vps:hover { background: var(--sky-light); }
+    .vps-n { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+    .vps-n.r { color: var(--sky-blue); }
+    .vps-n.g { color: var(--teal); }
+    .vps-n.w { color: var(--ink); }
+    .vps-l { font-size: 0.62rem; color: var(--blue-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    .role-illustration {
+      display: flex; gap: 1rem;
+    }
+    .role-illus-card {
+      flex: 1; border-radius: 18px; padding: 1rem;
+      border: 1px solid rgba(14,165,233,0.15);
+      background: var(--card);
+      cursor: pointer; transition: all 0.25s;
+    }
+    .role-illus-card:hover { background: var(--sky-light); transform: translateY(-2px); }
+    .role-illus-card.lit { border-color: var(--sky-blue); background: var(--sky-light); box-shadow: 0 4px 12px var(--sky-glow); }
+    .role-illus-card.lit.student { border-color: var(--teal); background: rgba(13,148,136,0.05); }
+    .ri-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .ri-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue-muted); margin-bottom: 2px; }
+    .role-illus-card.lit .ri-label { color: var(--sky-blue); }
+    .role-illus-card.lit.student .ri-label { color: var(--teal); }
+    .ri-name { font-size: 0.88rem; font-weight: 600; color: var(--blue-muted); }
+    .role-illus-card.lit .ri-name { color: var(--ink); }
+
+    .vp-soundbars {
+      display: flex; align-items: flex-end; gap: 3px; height: 32px; margin-top: auto; padding-top: 2rem;
+    }
+    .sb { width: 4px; border-radius: 4px 4px 0 0; background: var(--sky-blue); opacity: 0.4; }
+
+    /* ══ RIGHT — FORM PANEL ══ */
+    .form-panel {
+      margin-left: 46%;
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 2.5rem; min-height: calc(100vh - 60px);
+      position: relative; z-index: 1;
+    }
+    .form-panel-inner { width: 100%; max-width: 420px; }
+
+    /* ══ ROLE TABS (light) ══ */
+    .role-tabs {
+      display: flex; gap: 0; background: var(--sky-light);
+      border-radius: 20px; padding: 4px; margin-bottom: 2rem;
+    }
+    .role-tab {
+      flex: 1; padding: 0.7rem 1rem;
+      border-radius: 16px; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+      color: var(--blue-muted); background: transparent;
+      transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .role-tab.active {
+      background: var(--card); color: var(--ink);
+      box-shadow: 0 2px 12px rgba(14,165,233,0.12);
+    }
+    .role-tab.active.teacher { color: var(--sky-blue); }
+    .role-tab.active.student { color: var(--teal); }
+    .role-tab-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .role-tab.active.teacher .role-tab-dot { background: var(--sky-blue); }
+    .role-tab.active.student .role-tab-dot { background: var(--teal); }
+    .role-tab:not(.active) .role-tab-dot { background: var(--blue-muted); opacity: 0.4; }
+
+    /* ══ FORM HEADER ══ */
+    .form-header { margin-bottom: 1.8rem; }
+    .form-greeting {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 0.4rem;
+      transition: color 0.3s;
+    }
+    .form-greeting.teacher { color: var(--sky-blue); }
+    .form-greeting.student { color: var(--teal); }
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.4rem;
+      animation: hdrIn 0.4s ease;
+    }
+    @keyframes hdrIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+    .form-sub { font-size: 0.85rem; color: var(--blue-muted); line-height: 1.55; }
+
+    /* ══ FORM CARD ══ */
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 1.8rem;
+      box-shadow: 0 10px 30px rgba(0,35,55,0.04);
+      margin-bottom: 1.2rem;
+      position: relative; overflow: hidden;
+      animation: cardIn 0.4s 0.1s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+    .login-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      transition: background 0.3s;
+    }
+    .login-card.teacher::before { background: linear-gradient(90deg, var(--sky-blue), #7dd3fc); }
+    .login-card.student::before { background: linear-gradient(90deg, var(--teal), #2dd4bf); }
+
+    /* ══ FIELDS ══ */
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
+    .field label { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+    .input-wrap { position: relative; }
+    .input-wrap input, .input-wrap select {
+      width: 100%; padding: 0.72rem 2.6rem 0.72rem 2.4rem;
+      border: 1.5px solid var(--border); border-radius: 16px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+      background: var(--cream); color: var(--ink); outline: none;
+      transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
+    }
+    .input-wrap select {
+      padding-left: 2.4rem;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%235b7f9c" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+    .input-wrap input:focus, .input-wrap select:focus {
+      background: #fff; box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+      border-color: var(--sky-blue);
+    }
+    .input-wrap input.teacher-focus:focus { border-color: var(--sky-blue); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+    .input-wrap input.student-focus:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+    .input-wrap input.error, .input-wrap select.error { border-color: var(--error); background: var(--error-lt); }
+    .input-wrap input.valid { border-color: var(--green); background: var(--green-lt); }
+    .field-icon { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; pointer-events: none; }
+    .field-action {
+      position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%);
+      font-size: 14px; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;
+      background: none; border: none;
+    }
+    .field-action:hover { opacity: 0.8; }
+    .field-error { font-size: 0.72rem; color: var(--error); display: none; margin-top: 2px; }
+    .field-error.show { display: block; }
+    .field-hint { font-size: 0.72rem; color: var(--blue-muted); margin-top: 2px; }
+
+    .remember-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .remember-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.82rem; color: var(--blue-muted); cursor: pointer; user-select: none;
+    }
+    .remember-label input { accent-color: var(--teal); width: 15px; height: 15px; }
+    .forgot-link { font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+    .forgot-link.teacher { color: var(--sky-blue); }
+    .forgot-link.student { color: var(--teal); }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .btn-login {
+      width: 100%; padding: 0.9rem;
+      border: none; border-radius: 40px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.22s;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      position: relative; overflow: hidden;
+    }
+    .btn-login::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0); transition: background 0.2s;
+    }
+    .btn-login:hover::after { background: rgba(255,255,255,0.08); }
+    .btn-login.teacher { background: var(--sky-blue); color: #fff; box-shadow: 0 4px 12px var(--sky-glow); }
+    .btn-login.teacher:hover { background: var(--sky-deep); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(14,165,233,0.3); }
+    .btn-login.student { background: var(--teal); color: #fff; box-shadow: 0 4px 12px var(--teal-glow); }
+    .btn-login.student:hover { background: var(--teal-deep); transform: translateY(-1px); }
+
+    .btn-login .btn-spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login.loading .btn-spinner { display: block; }
+    .btn-login.loading .btn-icon { display: none; }
+
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 1.2rem 0; font-size: 0.75rem; color: var(--blue-muted); font-weight: 500;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .quick-access {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.2rem;
+    }
+    .qa-btn {
+      padding: 0.65rem; border-radius: 40px;
+      border: 1.5px solid var(--border); background: var(--warm-light);
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: var(--blue-muted); cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .qa-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+    .qa-btn.t:hover { border-color: var(--sky-blue); color: var(--sky-blue); background: var(--sky-light); }
+    .qa-btn.s:hover { border-color: var(--teal); color: var(--teal); background: rgba(13,148,136,0.05); }
+
+    .student-extra { display: none; }
+    .student-extra.visible { display: block; animation: hdrIn 0.3s ease; }
+
+    .form-footer {
+      text-align: center; font-size: 0.82rem; color: var(--blue-muted);
+      animation: cardIn 0.4s 0.2s ease both;
+    }
+    .form-footer a { font-weight: 700; text-decoration: none; transition: color 0.2s; }
+    .form-footer a.teacher { color: var(--sky-blue); }
+    .form-footer a.student { color: var(--teal); }
+    .form-footer a:hover { text-decoration: underline; }
+
+    .alert-box {
+      border-radius: 16px; padding: 0.8rem 1rem;
+      font-size: 0.82rem; font-weight: 500; line-height: 1.5;
+      margin-bottom: 1rem; display: none; align-items: flex-start; gap: 8px;
+      animation: hdrIn 0.3s ease;
+    }
+    .alert-box.show { display: flex; }
+    .alert-box.error { background: var(--error-lt); border: 1px solid rgba(220,38,38,0.2); color: var(--error); }
+    .alert-box.success { background: var(--green-lt); border: 1px solid rgba(13,148,136,0.25); color: var(--teal); }
+
+    /* modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(11,43,63,0.4);
+      z-index: 500; display: none; align-items: center; justify-content: center;
+      padding: 1rem; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--card); border-radius: 24px; padding: 2rem;
+      width: 100%; max-width: 400px;
+      position: relative; animation: cardIn 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      background: var(--sky-light); cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--sky-soft); }
+    .modal-top-bar { height: 3px; border-radius: 3px; margin-bottom: 1.4rem; }
+    .modal-top-bar.teacher { background: linear-gradient(90deg, var(--sky-blue), #7dd3fc); }
+    .modal-top-bar.student { background: linear-gradient(90deg, var(--teal), #2dd4bf); }
+    .modal-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .modal-sub { font-size: 0.83rem; color: var(--blue-muted); line-height: 1.6; margin-bottom: 1.4rem; }
+    .modal-input {
+      width: 100%; padding: 0.72rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 16px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      background: var(--cream); color: var(--ink); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 1rem;
+    }
+    .modal-input:focus { border-color: var(--sky-blue); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); background: #fff; }
+    .modal-btn {
+      width: 100%; padding: 0.82rem; border: none; border-radius: 40px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; color: #fff;
+    }
+    .modal-btn.teacher { background: var(--sky-blue); }
+    .modal-btn.teacher:hover { background: var(--sky-deep); }
+    .modal-btn.student { background: var(--teal); }
+    .modal-btn.student:hover { background: var(--teal-deep); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--ink); color: #fff;
+      padding: 0.75rem 1.4rem; border-radius: 40px;
+      font-size: 0.85rem; font-weight: 500;
+      opacity: 0; pointer-events: none; z-index: 9999;
+      transition: all 0.3s; transform: translateY(8px);
+      max-width: 320px; box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.toast-success { background: var(--teal); }
+    .toast.toast-warn { background: var(--sky-blue); }
+
+    @media (max-width: 900px) {
+      .visual-panel { display: none; }
+      .form-panel { margin-left: 0; padding: 2rem 1.5rem; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      nav { padding: 0 1.2rem; }
+      .form-panel { padding: 1.5rem 1.2rem; align-items: flex-start; padding-top: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="landing-page.html" class="nav-logo">
+    <div class="nav-logo-icon">🎙</div>
+    <div class="nav-logo-text">Classroom<em>Echo</em></div>
+  </a>
+  <div class="nav-links">
+    <a href="landing-page.html">Home</a>
+    <a href="#how">How It Works</a>
+    <a href="teacher-registration.html">Register</a>
+  </div>
+  <a href="teacher-registration.html" class="nav-register">Create Account →</a>
+</nav>
+
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeForgot()">✕</button>
+    <div class="modal-top-bar" id="modalBar"></div>
+    <div class="modal-icon" id="modalIcon">🔑</div>
+    <div class="modal-title">Reset Your Password</div>
+    <p class="modal-sub">Enter your registered email address and we'll send you a reset link.</p>
+    <input class="modal-input" id="resetEmail" type="email" placeholder="Your email address"/>
+    <button class="modal-btn" id="modalBtn" onclick="sendReset()">📧 Send Reset Link</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="page-shell">
+  <div class="visual-panel">
+    <div class="vp-bg" id="vpBg"></div>
+    <div class="vp-glow"></div>
+    <div class="vp-ring" style="width:380px;height:380px;bottom:-120px;right:-120px;"></div>
+    <div class="vp-ring" style="width:260px;height:260px;bottom:-60px;right:-60px;border-color:rgba(14,165,233,0.08)"></div>
+    <div class="vp-ring" style="width:180px;height:180px;top:-50px;left:-50px;border-color:rgba(13,148,136,0.06)"></div>
+    <div class="vp-content">
+      <div>
+        <div class="vp-brand"><div class="vp-brand-dot"></div><div class="vp-brand-label">ClassroomEcho · Secure Login</div></div>
+        <h2 class="vp-headline">Your classroom,<br/><em>always</em><br/><span class="red">listening.</span></h2>
+        <p class="vp-desc">Sign in to access your recordings, manage your class instructions, and keep every student informed — whether present or absent.</p>
+        <div class="vp-stats">
+          <div class="vps"><div class="vps-n r" id="vpTeachers">0</div><div class="vps-l">Teachers</div></div>
+          <div class="vps"><div class="vps-n g" id="vpStudents">0</div><div class="vps-l">Students</div></div>
+          <div class="vps"><div class="vps-n w" id="vpRecordings">0</div><div class="vps-l">Recordings</div></div>
+        </div>
+        <div class="role-illustration">
+          <div class="role-illus-card" id="illus-teacher" onclick="switchRole('teacher')"><div class="ri-icon">👩‍🏫</div><div class="ri-label">Teacher</div><div class="ri-name">Record & manage</div></div>
+          <div class="role-illus-card student" id="illus-student" onclick="switchRole('student')"><div class="ri-icon">🎧</div><div class="ri-label">Student</div><div class="ri-name">Listen & learn</div></div>
+        </div>
+      </div>
+      <div class="vp-soundbars" id="vpSoundbars"></div>
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-panel-inner">
+      <div class="role-tabs">
+        <button class="role-tab teacher active" id="tab-teacher" onclick="switchRole('teacher')"><div class="role-tab-dot"></div>👩‍🏫 Teacher</button>
+        <button class="role-tab student" id="tab-student" onclick="switchRole('student')"><div class="role-tab-dot"></div>🎧 Student</button>
+      </div>
+      <div class="form-header">
+        <div class="form-greeting teacher" id="formGreeting">Teacher Access</div>
+        <div class="form-title" id="formTitle">Welcome back.</div>
+        <div class="form-sub" id="formSub">Sign in to your Teacher Studio and manage your class recordings.</div>
+      </div>
+      <div class="alert-box error" id="alertBox"><span>⚠️</span><span id="alertMsg">Invalid credentials. Please try again.</span></div>
+      <div class="login-card teacher" id="loginCard">
+        <div id="teacherForm">
+          <div class="field"><label>Username or Email</label><div class="input-wrap"><span class="field-icon">👤</span><input type="text" id="t-username" class="teacher-focus" placeholder="e.g. ngozi.ihejirika or email@school.ng" oninput="clearAlert()"/></div><span class="field-error" id="err-t-username">Please enter your username or email.</span></div>
+          <div class="field"><label>Password</label><div class="input-wrap"><span class="field-icon">🔒</span><input type="password" id="t-password" class="teacher-focus" placeholder="Your password" oninput="clearAlert()"/><button class="field-action" onclick="togglePwd('t-password', this)">👁</button></div><span class="field-error" id="err-t-password">Please enter your password.</span></div>
+          <div class="remember-row"><label class="remember-label"><input type="checkbox" id="t-remember"/> Remember me for 30 days</label><a href="#" class="forgot-link teacher" onclick="openForgot('teacher'); return false;">Forgot password?</a></div>
+          <button class="btn-login teacher" id="btnTeacherLogin" onclick="doLogin('teacher')"><span class="btn-icon">🎙</span><span class="btn-text">Sign In to Teacher Studio</span><div class="btn-spinner"></div></button>
+        </div>
+        <div id="studentForm" style="display:none">
+          <div class="field"><label>Full Name</label><div class="input-wrap"><span class="field-icon">👤</span><input type="text" id="s-name" class="student-focus" placeholder="e.g. Amina Bello" oninput="clearAlert()"/></div><span class="field-error" id="err-s-name">Please enter your full name.</span></div>
+          <div class="field"><label>Class / Arm</label><div class="input-wrap"><span class="field-icon">🏫</span><select id="s-class" class="student-focus" onchange="clearAlert()"><option value="">— Select Your Class —</option><optgroup label="JSS"><option>JSS 1A</option><option>JSS 1B</option><option>JSS 1C</option><option>JSS 2A</option><option>JSS 2B</option><option>JSS 2C</option><option>JSS 3A</option><option>JSS 3B</option><option>JSS 3C</option></optgroup><optgroup label="SS"><option>SS 1A</option><option>SS 1B</option><option>SS 1C</option><option>SS 2A</option><option>SS 2B</option><option>SS 2C</option><option>SS 3A</option><option>SS 3B</option><option>SS 3C</option></optgroup></select></div><span class="field-error" id="err-s-class">Please select your class.</span></div>
+          <div class="field student-extra" id="studentExtraField"><label>Admission / Student ID <span style="font-size:0.72rem;font-weight:400;">(optional)</span></label><div class="input-wrap"><span class="field-icon">🆔</span><input type="text" id="s-id" class="student-focus" placeholder="e.g. ECH/2024/042"/></div></div>
+          <div class="remember-row"><label class="remember-label"><input type="checkbox" id="s-remember"/> Keep me signed in</label><a href="#" class="forgot-link student" onclick="openForgot('student'); return false;">Need help?</a></div>
+          <button class="btn-login student" id="btnStudentLogin" onclick="doLogin('student')"><span class="btn-icon">🎧</span><span class="btn-text">Access My Recordings</span><div class="btn-spinner"></div></button>
+        </div>
+      </div>
+      <div class="divider">or try a demo</div>
+      <div class="quick-access"><button class="qa-btn t" onclick="demoLogin('teacher')">🎙 Demo Teacher</button><button class="qa-btn s" onclick="demoLogin('student')">🎧 Demo Student</button></div>
+      <div class="form-footer"><div id="footerRegister">Don't have an account? <a href="teacher-registration.html" class="teacher" id="footerLink">Register as a Teacher →</a></div><div style="font-size:0.75rem;color:var(--blue-muted);margin-top:0.6rem">By signing in you agree to our <a href="#" style="color:var(--sky-blue)">Terms</a> & <a href="#" style="color:var(--teal)">Privacy Policy</a></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentRole = 'teacher';
+  (function buildVisuals() {
+    const bg = document.getElementById('vpBg');
+    for (let i = 0; i < 60; i++) { let b = document.createElement('div'); b.className = 'vp-bar'; b.style.height = (4 + Math.abs(Math.sin(i * 0.35)) * 60) + 'px'; bg.appendChild(b); }
+    const sb = document.getElementById('vpSoundbars');
+    for (let i = 0; i < 24; i++) { let b = document.createElement('div'); b.className = 'sb'; b.id = 'vpb-' + i; b.style.height = (4 + Math.random() * 24) + 'px'; sb.appendChild(b); }
+  })();
+  function animVPBars() { const bars = document.querySelectorAll('.vp-bar'); let t = 0; (function loop() { bars.forEach((b, i) => { b.style.height = (4 + Math.abs(Math.sin(t * 0.015 + i * 0.2)) * 55) + 'px'; b.style.opacity = 0.1 + Math.abs(Math.sin(t * 0.01 + i * 0.15)) * 0.25; }); t++; requestAnimationFrame(loop); })(); }
+  function animSoundbars() { let t = 0; (function loop() { for (let i = 0; i < 24; i++) { const b = document.getElementById('vpb-' + i); if (b) b.style.height = (4 + Math.abs(Math.sin(t * 0.07 + i * 0.28)) * 26) + 'px'; } t++; requestAnimationFrame(loop); })(); }
+  animVPBars(); animSoundbars();
+
+  function animCount(elId, target) { const el = document.getElementById(elId); const dur = 1600, start = performance.now(); (function step(now) { const p = Math.min((now - start) / dur, 1); const ease = 1 - Math.pow(1 - p, 3); el.textContent = Math.floor(ease * target); if (p < 1) requestAnimationFrame(step); else el.textContent = target; })(performance.now()); }
+  setTimeout(() => { animCount('vpTeachers', 847); animCount('vpStudents', 6240); animCount('vpRecordings', 3180); }, 400);
+
+  function switchRole(role) {
+    currentRole = role;
+    document.getElementById('tab-teacher').classList.toggle('active', role === 'teacher');
+    document.getElementById('tab-student').classList.toggle('active', role === 'student');
+    document.getElementById('teacherForm').style.display = role === 'teacher' ? 'block' : 'none';
+    document.getElementById('studentForm').style.display = role === 'student' ? 'block' : 'none';
+    const card = document.getElementById('loginCard');
+    card.classList.toggle('teacher', role === 'teacher');
+    card.classList.toggle('student', role === 'student');
+    const greetingEl = document.getElementById('formGreeting');
+    const titleEl = document.getElementById('formTitle');
+    const subEl = document.getElementById('formSub');
+    greetingEl.className = 'form-greeting ' + role;
+    if (role === 'teacher') {
+      greetingEl.textContent = 'Teacher Access';
+      titleEl.textContent = 'Welcome back.';
+      subEl.textContent = 'Sign in to your Teacher Studio and manage your class recordings.';
+      document.getElementById('footerLink').textContent = 'Register as a Teacher →';
+      document.getElementById('footerLink').className = 'teacher';
+      document.getElementById('studentExtraField').classList.remove('visible');
+    } else {
+      greetingEl.textContent = 'Student Access';
+      titleEl.textContent = 'Listen. Learn. Grow.';
+      subEl.textContent = 'Access your teacher\'s recorded instructions for any class, any time.';
+      document.getElementById('footerLink').textContent = 'Need a teacher account? Register →';
+      document.getElementById('footerLink').className = 'student';
+      setTimeout(() => document.getElementById('studentExtraField').classList.add('visible'), 200);
+    }
+    document.getElementById('illus-teacher').className = 'role-illus-card' + (role === 'teacher' ? ' lit' : '');
+    document.getElementById('illus-student').className = 'role-illus-card student' + (role === 'student' ? ' lit' : '');
+    clearAlert();
+    titleEl.style.animation = 'none'; requestAnimationFrame(() => { titleEl.style.animation = ''; });
+  }
+
+  function doLogin(role) {
+    clearAlert(); let valid = true;
+    if (role === 'teacher') {
+      const u = document.getElementById('t-username'); const p = document.getElementById('t-password');
+      if (!u.value.trim()) { document.getElementById('err-t-username').classList.add('show'); u.classList.add('error'); valid = false; } else { u.classList.remove('error'); u.classList.add('valid'); document.getElementById('err-t-username').classList.remove('show'); }
+      if (!p.value.trim()) { document.getElementById('err-t-password').classList.add('show'); p.classList.add('error'); valid = false; } else { p.classList.remove('error'); p.classList.add('valid'); document.getElementById('err-t-password').classList.remove('show'); }
+    } else {
+      const n = document.getElementById('s-name'); const c = document.getElementById('s-class');
+      if (!n.value.trim()) { document.getElementById('err-s-name').classList.add('show'); n.classList.add('error'); valid = false; } else { n.classList.remove('error'); n.classList.add('valid'); document.getElementById('err-s-name').classList.remove('show'); }
+      if (!c.value) { document.getElementById('err-s-class').classList.add('show'); c.style.borderColor = 'var(--error)'; valid = false; } else { c.style.borderColor = 'var(--green)'; document.getElementById('err-s-class').classList.remove('show'); }
+    }
+    if (!valid) { showToast('⚠️ Please fill all required fields.', 'warn'); return; }
+    const btn = document.getElementById(role === 'teacher' ? 'btnTeacherLogin' : 'btnStudentLogin');
+    btn.classList.add('loading');
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      if (role === 'teacher') {
+        const u = document.getElementById('t-username').value.trim().toLowerCase();
+        const p = document.getElementById('t-password').value.trim();
+        if (u === 'wrong' || p === 'wrong') {
+          showAlert('error', '⚠️ Incorrect username or password. Please try again.');
+          document.getElementById('t-password').value = ''; document.getElementById('t-password').classList.remove('valid');
+          return;
+        }
+        showAlert('success', '✅ Login successful! Redirecting to Teacher Studio…');
+        showToast('🎙 Welcome back, Teacher!', 'success');
+        setTimeout(() => { window.location.href = 'teacherPortal.html'; }, 1400);
+      } else {
+        showAlert('success', '✅ Access granted! Redirecting to your recordings…');
+        showToast('🎧 Welcome back, ' + document.getElementById('s-name').value.split(' ')[0] + '!', 'success');
+        setTimeout(() => { window.location.href = 'my-recordings.html'; }, 1400);
+      }
+    }, 1600);
+  }
+
+  function demoLogin(role) {
+    switchRole(role);
+    if (role === 'teacher') {
+      document.getElementById('t-username').value = 'demo.teacher';
+      document.getElementById('t-password').value = 'Demo@1234';
+      document.getElementById('t-username').classList.add('valid');
+      document.getElementById('t-password').classList.add('valid');
+    } else {
+      document.getElementById('s-name').value = 'Amina Bello';
+      document.getElementById('s-class').value = 'SS 2A';
+      document.getElementById('s-class').style.borderColor = 'var(--green)';
+      document.getElementById('s-id').value = 'ECH/2024/042';
+    }
+    showToast('✨ Demo credentials filled — click Sign In!');
+  }
+
+  function openForgot(role) {
+    document.getElementById('forgotModal').classList.add('open');
+    document.getElementById('modalBar').className = 'modal-top-bar ' + role;
+    document.getElementById('modalBtn').className = 'modal-btn ' + role;
+    document.getElementById('resetEmail').value = '';
+  }
+  function closeForgot() { document.getElementById('forgotModal').classList.remove('open'); }
+  function sendReset() { const email = document.getElementById('resetEmail').value.trim(); if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('⚠️ Please enter a valid email address.', 'warn'); return; } closeForgot(); showToast('📧 Password reset link sent to ' + email); }
+  function clearAlert() { document.getElementById('alertBox').classList.remove('show'); }
+  function showAlert(type, msg) { const box = document.getElementById('alertBox'); box.className = 'alert-box ' + type + ' show'; document.getElementById('alertMsg').textContent = msg; }
+  function togglePwd(id, btn) { const input = document.getElementById(id); input.type = input.type === 'password' ? 'text' : 'password'; btn.textContent = input.type === 'password' ? '👁' : '🙈'; }
+  function showToast(msg, type='') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast' + (type ? ' toast-' + type : '') + ' show'; clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 3400); }
+  document.getElementById('forgotModal').addEventListener('click', e => { if (e.target.id === 'forgotModal') closeForgot(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(currentRole); });
+</script>
+</body>
+</html>
